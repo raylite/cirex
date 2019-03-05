@@ -62,8 +62,8 @@ body.loading .modal {
   display: table;
 }
 
-#freq_unigram, #tiabs_freq_uni,#tiabs_freq_bi,#f_tiabs_bi,#chi_tiabs_uni,
-#tf_mesh_bi,#tf_tiabs_uni, #tf_tiabs_bi,#tf_pred,#f_tiabs_uni,#chi_tiabs_bi{
+#freq_unigram, #tiabs_freq_uni,#tiabs_freq_bi,#f_preds_bi,#chi_preds_uni,
+#tf_mesh_bi,#tf_tiabs_uni, #tf_tiabs_bi,#tf_pred, #tf_pred_multi, #f_preds_uni,#chi_preds_bi{
   display: table-cell;
   max-width: 10%;
   vertical-align: 

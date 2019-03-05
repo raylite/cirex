@@ -190,7 +190,7 @@ def display_results(results):
                            unigrams = pd.DataFrame(freq_terms['MeSH']).to_html(), 
                            tiabs_uni = pd.DataFrame(tiabs_terms['TAM_Unigrams']).to_html(),
                            tiabs_bi = pd.DataFrame(tiabs_bi['TAM_Bigrams']).to_html(),
-                           tf_bi_mesh = pd.DataFrame(tf_bi_mesh['MeSH_tf']).to_html(),
+                           tf_mesh = pd.DataFrame(tf_bi_mesh['MeSH_tf']).to_html(),
                            tf_uni_tiabs = pd.DataFrame(tf_uni_tiabs['TAM_tf']).to_html(),
                            tf_bi_tiabs = pd.DataFrame(tf_bi_tiabs['Bi_TAM_tf']).to_html(),
                            tf_bi_preds = pd.DataFrame(tf_bi_preds['Nu_Pred_tf']).to_html(),

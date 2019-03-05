@@ -36,10 +36,10 @@ def analyse_semmed_predicates(pmids):
     
     
 def chi_fishers_ranking(preds_details, unique = True):  
-    if unique:##reprogram, this should be uinue and non files
+    if unique:
         db_record = pd.read_csv(os.path.join(root, 'unique_predicates.csv'))
     else:
-        db_record = pd.read_csv(os.path.join(root, 'nonunique_predicates.csv'))
+        db_record = pd.read_csv(os.path.join(root, 'multigram_predicates.csv'))
     
     global_sum = db_record['Frequency'].sum()
     
