@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Citations record</title>
+	<link rel="icon" href="data:;base64,=">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<h2>Citation record preview</h2>
+	<table>
+		{{ data | safe }}
+	</table>
+	
+	<form method="POST" id = process_form>
+    	{{ form.hidden_tag() }}
+    	<p>
+        	{{ form.process_button}}
+    	</p>
+	</form>
+</body>
+</html>

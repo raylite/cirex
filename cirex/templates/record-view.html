@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Upload View</title>
+<link rel="icon" href="data:;base64,=">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h2>File contents</h2>
+<table>
+    <tr>
+        <th>Citation record</th>
+    </tr>
+
+    {% for row in range(records) %}
+        <tr>
+            {% for column in range(1) %}
+                <td> {{ citation_records[row][column] }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+
+</table>
+<form method="POST" id="loadingForm">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.retrieve_button}}
+    </p>
+</form>
+
+ <div class="modal"> </div> 
+
+</body>
+
+<script>
+    $(document).ready(function (){
+        $body = $('body');
+        $(document).on({
+            ajaxStart: function() { $body.addClass("loading"); },
+            ajaxComplete: function () { $body.removeClass("loading");}
+        });
+        
+        $("#loadingForm").on("submit", function(){
+        $("input[type = 'submit']", this)
+            .val("Retrieving citation records...")
+            .prop("disabled", "disabled");
+
+        return true;
+        
+
+    });
+      
+});
+</script>
+</html>
+
+

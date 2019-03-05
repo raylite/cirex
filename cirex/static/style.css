@@ -1,0 +1,86 @@
+body            { 
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	max-width: 95%;
+	margin-left: auto;
+  margin-right: auto;
+}
+a, h1, h2       { color: #377ba8; }
+h1, h2          { margin: 0; }
+h1              { border-bottom: 2px solid #eee; }
+h2              { font-size: 1.2em; }
+
+table.dataframe, .dataframe th, .dataframe td {
+  border: none;
+  border-bottom: 1px solid #C8C8C8;
+  border-collapse: collapse;
+  text-align:left;
+  padding: 5px;
+  margin-bottom: 40px;
+  font-size: 10px;
+}
+
+table.dataframe{
+	margin: 10px;
+	overflow-y: scroll;
+	overflow-x: scroll;
+}
+
+tr:nth-child(odd)		{ background-color:#eee; }
+tr:nth-child(even)	{ background-color:#fff; }
+
+tr:hover            { background-color: #ffff99;}
+
+#newloadframe #reloadframe{
+	width: 60%;
+}
+
+.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url("spinner.gif")
+                50% 50% 
+                no-repeat;
+}
+
+body.loading {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}
+
+#top-div{
+  display: table;
+}
+
+#freq_unigram, #tiabs_freq_uni,#tiabs_freq_bi,#f_tiabs_bi,#chi_tiabs_uni,
+#tf_mesh_bi,#tf_tiabs_uni, #tf_tiabs_bi,#tf_pred,#f_tiabs_uni,#chi_tiabs_bi{
+  display: table-cell;
+  max-width: 10%;
+  vertical-align: 
+}
+
+#headings-div{
+  display: table-row;
+  vertical-align: top;
+  width: 100%;
+}
+
+#freq_mesh, #freq_tiabs, #tfidf-mesh, #tfidf-tiabs{
+  display: table-cell;
+  width: 30%;
+  
+}
+
+#pagehead{
+  align-content: center;
+}

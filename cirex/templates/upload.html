@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Upload</title>
+<link rel="icon" href="data:;base64,=">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename  = 'style.css') }}">
+</head>
+<body>
+    
+    <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        {{ form1.hidden_tag() }}
+        {{ form2.hidden_tag() }}
+        <fieldset id="newloadframe">
+            <p class="upload">
+                <input type="radio" name="inputOption" checked="true" value="new">New search<br>
+                    {{ form1.search_id.label }} 
+                    {{ form1.search_id }}<br>
+                    <strong>Load file containing citations:</strong><br>
+                    <!--<input type="file" name="file" id="file">-->
+                    {{ form1.file }}
+                    <div id="msg"></div>
+                    {{ form1.upload_button }}
+            </p>
+        </fieldset>
+
+        <fieldset id="reloadframe">
+        	<p class="retrieve">
+            
+                <input type="radio" name="inputOption" value="existing">Recall existing search<br>
+                {{ form2.search_name }}<br>
+                {{ form2.searchbtn }}
+
+            </p>
+        </fieldset>
+    </form>
+</body>
+
+<script>
+   // $(document).ready(
+    
+    $(document).ready(function (){
+        $("#searchbtn").prop("disabled", true);
+        $("input[type = 'radio']").on("change", function(){
+            var radButtons = $("input[name = 'inputOption']:checked")
+            if (radButtons.val() == "existing"){
+                console.log(radButtons.val());
+                $("#searchbtn").prop("disabled", false); 
+            }
+            else
+                $("#searchbtn").prop("disabled", true); 
+            
+            if (radButtons.val() == "new"){
+                console.log(radButtons.val());
+                $("#upload_button").prop("disabled", false);
+            }
+            else
+                $("#upload_button").prop("disabled", true);
+        });
+
+    $("#file").change(function(){
+        
+        var input = document.getElementById('file');
+        for (var i=0; i<input.files.length; i++)
+        {
+        
+            var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+            if ((ext == 'txt') || (ext == 'csv')|| (ext == 'ris'))
+            {
+                $("#msg").text("Files are supported")
+                $("#upload_button").prop('disabled', false);
+            }
+            else
+            {
+                $("#msg").html("The selected file format is NOT yet supported <br /> Please select a different file in 'csv' or 'txt' format")
+
+                $("#upload_button").prop('disabled', true);
+
+                $("#file").value ="";
+            }
+        }
+    });
+});
+        
+</script>
+</html>
