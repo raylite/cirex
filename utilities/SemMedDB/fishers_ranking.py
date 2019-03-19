@@ -17,6 +17,9 @@ from utilities import tfidf_ranking
 
 root = os.path.abspath(os.path.dirname(__file__))
 
+_UNIQUE_COUNTL_SUM = 115646090
+_NON_UNIQUE_COUNT_SUM = 185505672
+
 def analyse_semmed_predicates(pmids):
     unique_fishers = 0
     unique_chi2 = 0
@@ -29,33 +32,38 @@ def analyse_semmed_predicates(pmids):
     
     unique_fishers, unique_chi2 = chi_fishers_ranking(unique_pred_details)
     nonunique_fishers, nonunique_chi2 = chi_fishers_ranking(nonunique_pred_details, unique = False)
-    nonunique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['SUBJ_OBJ_COMBINED'], unique = False)#predicates tfidf fix by making non unique multigrams
-    unique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['UNIQUE_SUBJ_OBJ_COMBINED'], unique = True)
-    
+    nonunique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['UP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'multicount')#predicates tfidf fix by making non unique multigrams
+    unique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['NUP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'uniquecount')
+   
     return unique_fishers, unique_chi2, nonunique_fishers, nonunique_chi2, nonunique_tfidf, unique_tfidf
     
     
 def chi_fishers_ranking(preds_details, unique = True):  
     if unique:
-        db_record = pd.read_csv(os.path.join(root, 'unique_predicates.csv'))
+        db_record = pd.read_csv(os.path.join(root, 'uniquecount_predicates.csv'))
+        global_sum = _UNIQUE_COUNTL_SUM
+        
     else:
-        db_record = pd.read_csv(os.path.join(root, 'multigram_predicates.csv'))
-    
-    global_sum = db_record['Frequency'].sum()
+        db_record = pd.read_csv(os.path.join(root, 'multicount_predicates.csv'))
+        global_sum = _NON_UNIQUE_COUNT_SUM
     
     local_sum = preds_details['Frequency'].sum()
-    
-    
+       
     preds_details = preds_details.sort_values(by = 'Predicate').reset_index(drop=True)
         
     ix = db_record['Predicate'].isin(preds_details['Predicate']).tolist()
+    
     
     ix = map(lambda x : x[0],filter(lambda x : x[1]==False,list(enumerate(ix))))
     
     global_freq = db_record.drop(ix).sort_values(by='Predicate').reset_index(drop=True)
     
     preds_details['DB_frequency'] = global_freq['Frequency']
-        
+   
+    preds_details = preds_details[~preds_details['DB_frequency'].isnull()]
+    preds_details = preds_details[~preds_details['Frequency'].isnull()]
+    
+    
     preds_details['fishers'] = preds_details.apply(lambda x: stats.fisher_exact([[local_sum, global_sum],
                                                                                 [x['Frequency'], x['DB_frequency']]])[1],
                                                     axis=1)#fishers returns a tuple, only the p value is selected
@@ -71,8 +79,7 @@ def chi_fishers_ranking(preds_details, unique = True):
     if not unique:
         fisher_values_df = pd.DataFrame({'Nu_F_Predicates': preds_details['Predicate'],
                                    'fishers': preds_details['fishers'],
-                                   'corrected_f_p_value': corrected_f_pvalues,
-                                   'Docs_count': preds_details['Doc_count']
+                                   'corrected_f_p_value': corrected_f_pvalues
                                    }).sort_values(by='corrected_f_p_value', ascending=False).reset_index(drop=True)
         chi_values_df = pd.DataFrame({'Nu_Chi2_Predicates': preds_details['Predicate'],
                                    'chi': preds_details['chi_contingency'],
