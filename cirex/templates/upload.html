@@ -9,7 +9,7 @@
 </head>
 <body>
     
-    <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <form id="upload-form" action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
         {{ form1.hidden_tag() }}
         {{ form2.hidden_tag() }}
         <fieldset id="newloadframe">

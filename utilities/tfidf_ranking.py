@@ -46,14 +46,11 @@ def bigrams(doc_tokens, n=2):
         yield ' '.join(grams)
 
 def vectorize(corpus, condition, input_type = None):
-    print (f"{input_type} {condition}")
     if condition == 'bigram' and input_type == 'tiabsmesh':
-        print ('In HERE')
         corpus = [list(bigrams(tokenize(doc))) for doc in corpus]
         #tfidf = TfidfVectorizer(ngram_range=(2,2), tokenizer=tokenize,max_df=0.9, 
                            #min_df=2)
     else:
-        print('IN THERE')
         corpus = [list(tokenize(doc, input_type)) for doc in corpus]
         
     texts  = TextCollection(corpus) 
@@ -81,27 +78,17 @@ def compute_tfidf(corpus, input_type = None, condition = None):
     if input_type == 'mesh':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['MeSH_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-        print (f"{input_type} {condition}")
-        print(corpus_df.head(3))
     elif input_type == 'tiabsmesh' and condition == 'unigram':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['TAM_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-        print (f"{input_type} {condition}")
-        print(corpus_df.head(3))
     elif input_type == 'tiabsmesh' and condition == 'bigram':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['Bi_TAM_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-        print (f"{input_type} {condition}")
-        print(corpus_df.head(3))
     elif input_type == 'predicate' and condition == 'uniquecount':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['U_Pred_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-        print (f"{input_type} {condition}")
-        print(corpus_df.head(3))
     elif input_type == 'predicate' and condition == 'multicount':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['Nu_Pred_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-        print (f"{input_type} {condition}")
-        print(corpus_df.head(3))
     
     return corpus_df

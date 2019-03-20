@@ -1,27 +1,23 @@
 
-from cirex import app
+from cirex.main import bp
 from cirex import db
 
 import os
-from flask import flash, request, redirect, render_template, url_for
-#from werkzeug.utils import secure_filename
-
+from flask import flash, request, redirect, render_template, url_for, current_app
 import pandas as pd
-#import json
-
 from utilities import pubmed_downloader, rank_freq, tfidf_ranking
 from utilities.SemMedDB import fishers_ranking as fr
-from .forms import retrieval_form, new_search_form, processing_form, exisitng_search_form
-from .models import Search, Article, Database, Result
+from cirex.main.forms import retrieval_form, new_search_form, processing_form, exisitng_search_form
+from cirex.models import Search, Article, Database, Result
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config["ALLOWED_EXTENSIONS"]
 
 
 
 # =============================================================================
-# @app.route('/index')
+# @bp.route('/index')
 # def index():
 #      upload_form = new_search_form()   
 #      retrieve_form = exisitng_search_form()
@@ -29,15 +25,15 @@ def allowed_file(filename):
 # 
 # =============================================================================
 
-@app.route('/', methods=['POST', 'GET'])
-@app.route('/upload', methods=['POST', 'GET'])
+@bp.route('/', methods=['POST', 'GET'])
+@bp.route('/upload', methods=['POST', 'GET'])
 def upload():
     upload_form = new_search_form()   
     retrieve_form = exisitng_search_form()
     
     if request.method == 'POST':  
-        if not os.path.isdir(app.config['UPLOAD_FOLDER']):
-            os.mkdir(app.config['UPLOAD_FOLDER'])
+        if not os.path.isdir(current_app.config['UPLOAD_FOLDER']):
+            os.mkdir(current_app.config['UPLOAD_FOLDER'])
         
         if 'file' not in request.files:
             flash('No file part')
@@ -54,16 +50,16 @@ def upload():
             searchinfo = Search(name= upload_form.search_id.data, citation_list = file.read())
             db.session.add(searchinfo)
             db.session.commit()
-            return redirect(url_for('file_view', search_name = searchinfo.name, _external=True))
+            return redirect(url_for('main.file_view', search_name = searchinfo.name, _external=True))
     
     elif request.method == 'GET' and retrieve_form.validate_on_submit():
         #load from database
         search = Search.query.filter_by(name = retrieve_form.search_name.data).first()
         result = Result.query.filter_by(search_id = search.id)
-        redirect(url_for('result.html', result = result.id or "Yet to build result"))
+        redirect(url_for('main.result.html', result = result.id or "Yet to build result"))
     return render_template("upload.html", form1 = upload_form, form2 = retrieve_form)
 
-@app.route('/upload_view/<search_name>', methods=['GET', 'POST'])
+@bp.route('/upload_view/<search_name>', methods=['GET', 'POST'])
 def file_view(search_name):
         search = Search.query.filter_by(name = search_name).first_or_404()
         citations = search.citation_list.split("\r\n")
@@ -110,11 +106,11 @@ def file_view(search_name):
             except:
                 db.session.rollback()
                 raise
-            return redirect(url_for('retrieved_citations', search_name = search.name))
+            return redirect(url_for('main.retrieved_citations', search_name = search.name))
         return render_template('record-view.html', form = form, records = len(citations), citation_records= citations_list)
             
     
-@app.route('/citations_overview/<search_name>', methods = ['GET', 'POST'])
+@bp.route('/citations_overview/<search_name>', methods = ['GET', 'POST'])
 def retrieved_citations(search_name):
     articles = []
     search = Search.query.filter_by(name = search_name).first()
@@ -166,12 +162,12 @@ def retrieved_citations(search_name):
                         )
         db.session.add(result)
         db.session.commit()
-        return redirect(url_for('display_results', results = result.name))
+        return redirect(url_for('main.display_results', results = result.name))
     return render_template('retrieval.html', form = process_form, 
                            data = pd.DataFrame(articles).to_html())
 
 
-@app.route('/ranked_terms/<results>')
+@bp.route('/ranked_terms/<results>')
 def display_results(results):
     result = Result.query.filter_by(name = results).first()
     freq_terms = pd.read_json(result.freq_mesh_terms, orient = 'records')
@@ -186,6 +182,7 @@ def display_results(results):
     f_bi_preds = pd.read_json(result.fishers_multicount_preds, orient = 'records')  
     chi_unique_preds = pd.read_json(result.chi_uniquecount_preds, orient = 'records')
     chi_bi_preds = pd.read_json(result.chi_multicount_preds, orient = 'records')
+    
     return render_template('result.html', 
                            unigrams = pd.DataFrame(freq_terms[['MeSH']]).to_html(), 
                            tiabs_uni = pd.DataFrame(tiabs_terms[['TAM_Unigrams']]).to_html(),

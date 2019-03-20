@@ -1,5 +1,7 @@
-from cirex import app, db
+from cirex import create_app, db
 from cirex.models import Search, Database, Article, Result
+
+app = create_app()
 
 
 @app.shell_context_processor

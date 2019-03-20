@@ -7,33 +7,24 @@ Created on Wed Oct 03 13:38:34 2018
 import pandas as pd
 from collections import Counter
 import string
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 #from stopwords import bigram
 from nltk.util import ngrams
+import SemMedDB.common_terms as ct
 
 
 
 
 def unigram(index_information, field):
-    common_terms = ['randomized', 'randomize', 'randomised', 'randomise', 'random', 'clinic', 'clinical', 'research'
-                    'trial', 'trials', 'affect', 'also', 'control', 'controlled',
-                    'effect', 'human', 'being', 'human being', 'humans','child', 'age',
-                    'young', 'old', 'male', 'female', 'males', 'male', 'females', 'children', 'condition',
-                    'clinic', 'clinical', 'result', 'results', 'clinicaltrials.gov',
-                    'gov', 'maintain', 'maintained','treatment', 'treatments', 'care',
-                    'cares', 'self','people', 'patient', 'patients', 'man', 'woman', 
-                    'men', 'women', 'use', 'individual', 'individuals', 'person', 'persons', 
-                    'author','authors', 'outpatient', 'outpatients']
-    
+    terms = ct.commonTerminologies()
+    common_terms = terms.common_terms    
     stoplist = set(stopwords.words('english') + common_terms + list(string.punctuation))
     
     if field == 'mesh':
         
         tokens = index_information['MeSH'].str.split(',').tolist()
-        tokens = [mesh.lower() for toklist in tokens for mesh in toklist]
+        tokens = [mesh.lower() for toklist in tokens for mesh in toklist if mesh.lower() not in stoplist]
         
     elif field == 'tiabsmesh':
         df = pd.concat([index_information['Title'], index_information['Abstract'],
@@ -43,7 +34,7 @@ def unigram(index_information, field):
         translator = str.maketrans('', '', string.punctuation+string.digits)#python 3
         tokens = [token.translate(translator) for token in tokens]
         
-    tokens = [token for token in tokens if token and token not in stoplist] #removes any None element
+    tokens = [token for token in tokens if token and token not in stoplist and len(token) > 3] #removes any None element
     
     return tokens
 
