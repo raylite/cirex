@@ -1,3 +1,6 @@
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
 from cirex import create_app, db
 from cirex.models import Search, Database, Article, Result
 
