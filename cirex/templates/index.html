@@ -8,55 +8,73 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename  = 'style.css') }}">
 </head>
 <body>
-    
+    <fieldset>
+        <input type="radio" name="inputOption" checked="true" value="new">Click to start new process<br>
+        <fieldset id="newloadframe">
+            <legend>New process</legend>
     <form id="upload-form" action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
         {{ form1.hidden_tag() }}
-        {{ form2.hidden_tag() }}
-        <fieldset id="newloadframe">
+        
+        
             <p class="upload">
-                <input type="radio" name="inputOption" checked="true" value="new">New search<br>
-                    {{ form1.search_id.label }} 
-                    {{ form1.search_id }}<br>
+                
+                    {{ form1.search_name.label }} 
+                    {{ form1.search_name }}<br>
+                    {% for error in form1.search_name.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
                     <strong>Load file containing citations:</strong><br>
                     <!--<input type="file" name="file" id="file">-->
                     {{ form1.file }}
                     <div id="msg"></div>
                     {{ form1.upload_button }}
             </p>
+            </form>
         </fieldset>
-
-        <fieldset id="reloadframe">
+        <input type="radio" name="inputOption" value="existing">Click button to activate form to retieve existing results<br>
+        <fieldset id="reloadframe" disabled="true">
+            <legend>Retrieve existing results</legend>
+            <form action="{{ url_for('main.retrieve') }} " method="POST">
+                {{ form2.hidden_tag() }}
         	<p class="retrieve">
-            
-                <input type="radio" name="inputOption" value="existing">Recall existing search<br>
+               
                 {{ form2.search_name }}<br>
+                {% for error in form2.search_name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
                 {{ form2.searchbtn }}
 
             </p>
+            </form>
         </fieldset>
-    </form>
+    
+    </fieldset>
 </body>
 
 <script>
    // $(document).ready(
     
     $(document).ready(function (){
-        $("#searchbtn").prop("disabled", true);
+        $("input[type = text]").val('');
         $("input[type = 'radio']").on("change", function(){
             var radButtons = $("input[name = 'inputOption']:checked")
             if (radButtons.val() == "existing"){
                 console.log(radButtons.val());
-                $("#searchbtn").prop("disabled", false); 
+                $("#reloadframe").prop("disabled", false); 
             }
             else
-                $("#searchbtn").prop("disabled", true); 
+                $("#reloadframe").prop("disabled", true); 
             
             if (radButtons.val() == "new"){
                 console.log(radButtons.val());
-                $("#upload_button").prop("disabled", false);
+                $("#newloadframe").prop("disabled", false);
             }
             else
-                $("#upload_button").prop("disabled", true);
+                $("#newloadframe").prop("disabled", true);
         });
 
     $("#file").change(function(){

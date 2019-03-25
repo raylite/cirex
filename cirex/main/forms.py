@@ -9,19 +9,32 @@ Created on Tue Oct 23 10:47:15 2018
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, TextField, FileField
 from flask_wtf.file import FileRequired, FileAllowed
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
+
+from cirex.models import Search
 
 class retrieval_form(FlaskForm):
     retrieve_button = SubmitField("Retrieve citation records")
     
 class exisitng_search_form(FlaskForm):
-    search_name = TextField("Search title: ")
+    search_name = TextField("Search title: ", validators=[DataRequired()])
     searchbtn = SubmitField("Load search record")
     
+    def validate_search_name(self, search_name):
+        search = Search.query.filter_by(name = search_name.data).first()
+        if search is None:
+            raise ValidationError('The name you searched does not exist. Please enter a valid search name.')
+        
+    
 class new_search_form(FlaskForm):
-    search_id = TextField("Enter a name for this search: ")
+    search_name = TextField("Enter a name for this search: ", validators=[DataRequired()])
     upload_button = SubmitField("Upload!")
     file = FileField(validators=[FileRequired(), FileAllowed(['txt', 'ris', 'csv'], "File type not allowed!")]) 
+    
+    def validate_search_name(self, search_name):
+        search = Search.query.filter_by(name = search_name.data).first()
+        if search is not None:
+            raise ValidationError('The search identifier already exist. Use a different unique identier or use the search section to retrieve result of a previous process')
 
 
 class processing_form(FlaskForm):
