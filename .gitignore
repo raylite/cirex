@@ -120,3 +120,6 @@ dmypy.json
 *.db
 *.csv
 *.txt
+
+#log files
+logs/
