@@ -3,6 +3,7 @@
 <head>
 	<title>Citations record</title>
 	<link rel="icon" href="data:;base64,=">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -17,5 +18,25 @@
         	{{ form.process_button}}
     	</p>
 	</form>
+	<div class="modal"> </div> 
 </body>
+	<script>
+    $(document).ready(function (){
+        $body = $('body');
+        $(document).ajaxStart(function() { 
+        	$body.addClass("loading"); 
+        }).ajaxStop(function () { 
+        	$body.removeClass("loading");
+        });
+        
+        $("#process_form").on("submit", function(){
+        $("input[type = 'submit']", this)
+            .val("Retrieving predicates, preprocssing, and ranking...")
+            .prop("disabled", "disabled");
+
+        return true;
+       });
+    });
+</script>
+
 </html>
