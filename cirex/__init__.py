@@ -5,14 +5,12 @@ from flask_migrate import Migrate
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask_bootstrap import Bootstrap
-import flask_excel as excel
 import os
 
 
 db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
-
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -21,7 +19,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     bootstrap.init_app(app)
-    excel.init_excel(app)
 
     from cirex.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

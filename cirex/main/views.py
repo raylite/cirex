@@ -1,19 +1,16 @@
+
 from cirex.main import bp
 from cirex import db
-from flask import flash, request, redirect, render_template, url_for, current_app, send_file
-#import flask_excel as excel
+from flask import flash, request, redirect, render_template, url_for, current_app
 import pandas as pd
 from utilities import pubmed_downloader, rank_freq, tfidf_ranking
 from utilities.SemMedDB import fishers_ranking as fr
 from cirex.main.forms import retrieval_form, new_search_form, processing_form, exisitng_search_form
 from cirex.models import Search, Article, Database, Result
 
-from io import BytesIO
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config["ALLOWED_EXTENSIONS"]
-
 
 
 @bp.route('/')
@@ -23,14 +20,12 @@ def index():
      return render_template("index.html", form1 = upload_form, form2 = retrieve_form)
 
 
-@bp.route('/upload', methods=['POST', 'GET'])
+@bp.route('/upload', methods=['POST'])
 def upload():
     upload_form = new_search_form()   
     retrieve_form = exisitng_search_form()
     
-   
-    if upload_form.validate_on_submit():
-    
+    if upload_form.validate_on_submit():  
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -40,26 +35,24 @@ def upload():
         if file.filename =='':
             flash ('No file selected')
             return redirect(request.url)
-        
 
         if file and allowed_file(file.filename):
             searchinfo = Search(name= upload_form.search_name.data, citation_list = file.read())
             db.session.add(searchinfo)
             db.session.commit()
             return redirect(url_for('main.file_view', search_name = searchinfo.name, _external=True))
-
+    
     return render_template("index.html", form1 = upload_form, form2 = retrieve_form)
 
-@bp.route('/retrieve', methods=['POST', 'GET'])
+@bp.route('/retrieve', methods=['POST'])
 def retrieve():
     upload_form = new_search_form()   
     retrieve_form = exisitng_search_form()
     
     if retrieve_form.validate_on_submit():
-        
-    #load from database
-        search = Search.query.filter_by(name = retrieve_form.search_name.data).first_or_404()
-        return display_results('{}_{}'.format(search.name, 'result'))
+        #load from database
+        search = Search.query.filter_by(name = retrieve_form.search_name.data).first()
+        return display_results("{}_{}".format(search.name, 'result'))
     return render_template("index.html", form1 = upload_form, form2 = retrieve_form)
 
 @bp.route('/upload_view/<search_name>', methods=['GET', 'POST'])
@@ -170,7 +163,7 @@ def retrieved_citations(search_name):
                            data = pd.DataFrame(articles).to_html())
 
 
-@bp.route('/ranked_terms/<results>', methods=['GET'])
+@bp.route('/ranked_terms/<results>')
 def display_results(results):
     result = Result.query.filter_by(name = results).first()
     freq_terms = pd.read_json(result.freq_mesh_terms, orient = 'records')
@@ -186,33 +179,6 @@ def display_results(results):
     chi_unique_preds = pd.read_json(result.chi_uniquecount_preds, orient = 'records')
     chi_bi_preds = pd.read_json(result.chi_multicount_preds, orient = 'records')
     
-    if request == 'GET':
-        mesh = pd.concat([freq_terms[['MeSH']], tf_bi_mesh[['MeSH_tf']]])
-        tiabsmesh = pd.concat([tiabs_terms[['TAM_Unigrams']], tiabs_bi[['TAM_Bigrams']], tf_uni_tiabs[['TAM_tf']], tf_bi_tiabs[['Bi_TAM_tf']]])
-        predicates = pd.concat([tf_bi_preds['Nu_Pred_tf'], tf_unique_preds['U_Pred_tf'], f_unique_preds[['Un_F_Predicates']], 
-                               f_bi_preds[['Nu_F_Predicates']], chi_unique_preds[['Un_Chi2_Predicates']], chi_bi_preds[['Nu_Chi2_Predicates']]])
-       
-        output = BytesIO()
-        writer = pd.ExcelWriter(output, engine='xlsxwriter')
-       
-        mesh.to_excel(writer, startrow = 0, merge_cells=False, sheet_name= 'MeSH Terms')
-        tiabsmesh.to_excel(writer, startrow = 0, merge_cells=False, sheet_name= 'Title+Abstract+MeSH')
-        predicates.to_excel(writer, startrow = 0, merge_cells=False, sheet_name= 'SemMedDB Terms')
-       
-        workbook = writer.book
-        worksheet = writer.sheets['MeSH Terms']
-        worksheet = writer.sheets['Title+Abstract+MeSH']
-        worksheet = writer.sheets['SemMedDB Terms']
-       
-        format = workbook.add_format()
-        format.set_bg_color('#eeeeee')
-        worksheet.set_column(0,9,28)
-       
-        writer.close()
-       
-        return send_file(output, attachment_filename='ranked_terms.slsx', as_attachment=True)
-       
-    
     return render_template('result.html', 
                            unigrams = pd.DataFrame(freq_terms[['MeSH']]).to_html(), 
                            tiabs_uni = pd.DataFrame(tiabs_terms[['TAM_Unigrams']]).to_html(),
@@ -227,7 +193,3 @@ def display_results(results):
                            chi_unique_preds = pd.DataFrame(chi_unique_preds[['Un_Chi2_Predicates']]).to_html(),
                            chi_bi_preds = pd.DataFrame(chi_bi_preds[['Nu_Chi2_Predicates']]).to_html()
                            )
-
-@bp.route('/download/<results>')
-def download(results):
-    pass
