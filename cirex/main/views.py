@@ -1,8 +1,9 @@
 
 from cirex.main import bp
 from cirex import db
-from flask import flash, request, redirect, render_template, url_for, current_app
+from flask import flash, request, redirect, render_template, url_for, current_app, send_file
 import pandas as pd
+from io import BytesIO
 from utilities import pubmed_downloader, rank_freq, tfidf_ranking
 from utilities.SemMedDB import fishers_ranking as fr
 from cirex.main.forms import retrieval_form, new_search_form, processing_form, exisitng_search_form
@@ -191,5 +192,69 @@ def display_results(results):
                            f_unique_preds = pd.DataFrame(f_unique_preds[['Un_F_Predicates', 'Docs_Count']]).to_html(),
                            f_bi_preds = pd.DataFrame(f_bi_preds[['Nu_F_Predicates']]).to_html(),
                            chi_unique_preds = pd.DataFrame(chi_unique_preds[['Un_Chi2_Predicates']]).to_html(),
-                           chi_bi_preds = pd.DataFrame(chi_bi_preds[['Nu_Chi2_Predicates']]).to_html()
+                           chi_bi_preds = pd.DataFrame(chi_bi_preds[['Nu_Chi2_Predicates']]).to_html(), result = result
                            )
+
+  
+@bp.route('/download/<results>', methods=['GET'])
+def download(results):
+    result = Result.query.filter_by(name = results).first()
+    freq_terms = pd.read_json(result.freq_mesh_terms, orient = 'records')[['MeSH']]
+    tiabs_terms = pd.read_json(result.freq_tiabs_uni_terms, orient = 'records')[['TAM_Unigrams']]
+    tiabs_bi = pd.read_json(result.freq_tiabs_bi_terms, orient = 'records')[['TAM_Bigrams']]
+    tf_bi_mesh = pd.read_json(result.tfidf_mesh_terms, orient = 'records')[['MeSH_tf']]
+    tf_uni_tiabs = pd.read_json(result.tfidf_tiabs_uni_terms, orient = 'records')[['TAM_tf']]
+    tf_bi_tiabs = pd.read_json(result.tfidf_tiabs_bi_terms, orient = 'records')[['Bi_TAM_tf']]
+    tf_bi_preds = pd.read_json(result.tfidf_multicount_preds, orient = 'records')[['Nu_Pred_tf']]
+    tf_unique_preds = pd.read_json(result.tfidf_uniquecount_preds, orient = 'records')[['U_Pred_tf']]
+    f_unique_preds = pd.read_json(result.fishers_uniquecount_preds, orient = 'records')[['Un_F_Predicates']]
+    f_bi_preds = pd.read_json(result.fishers_multicount_preds, orient = 'records')[['Nu_F_Predicates']]  
+    chi_unique_preds = pd.read_json(result.chi_uniquecount_preds, orient = 'records')[['Un_Chi2_Predicates']]
+    chi_bi_preds = pd.read_json(result.chi_multicount_preds, orient = 'records')[['Nu_Chi2_Predicates']]
+    
+    output = BytesIO()
+    
+    with pd.ExcelWriter(output, engine = 'xlsxwriter') as writer:
+        freq_terms.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'MeSH frequency')
+        tiabs_terms.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'TiAbsMeSH unigram frequency')
+        tiabs_bi.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'TiAbsMeSH bigram frequency')
+        tf_bi_mesh.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'MeSH tfidf rank')
+        tf_uni_tiabs.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'TiAbsMeSH unigram tfidf')
+        tf_bi_tiabs.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'TiAbsMeSH bigram tfidf')
+        tf_bi_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds multicount tfidf')
+        tf_unique_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds unicount tfidf')
+        f_unique_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds unicount Fishers')
+        f_bi_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds multicount Fishers')
+        chi_unique_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds unicount Chi')
+        chi_bi_preds.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = 'Preds multicount Chi')
+    
+        workbook = writer.book
+        worksheet = writer.sheets['MeSH frequency']
+        worksheet = writer.sheets['TiAbsMeSH unigram frequency']
+        worksheet = writer.sheets['TiAbsMeSH bigram frequency']
+        worksheet = writer.sheets['MeSH tfidf rank']
+        worksheet = writer.sheets['TiAbsMeSH unigram tfidf']
+        worksheet = writer.sheets['TiAbsMeSH bigram tfidf']
+        worksheet = writer.sheets['Preds multicount tfidf']
+        worksheet = writer.sheets['Preds unicount tfidf']
+        worksheet = writer.sheets['Preds unicount Fishers']
+        worksheet = writer.sheets['Preds multicount Fishers']
+        worksheet = writer.sheets['Preds unicount Chi']
+        worksheet = writer.sheets['Preds multicount Chi']
+        
+        format = workbook.add_format()
+        format.set_bg_color('#eeeeee')
+        worksheet.set_column(1, 2, 40)
+        
+    output.seek(0)
+    return send_file(output, attachment_filename=f"{results}.xlsx", as_attachment=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
