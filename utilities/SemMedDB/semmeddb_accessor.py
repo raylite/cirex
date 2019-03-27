@@ -32,7 +32,7 @@ def count_predicates(grams_counter, predicate):
     common_terms = commonTerminologies().common_terms#local class defining frequent terms
     sw = set(stopwords.words('english') + common_terms + list(string.punctuation)) 
     
-    grams_tokenizer = [grams.lower() for grams in pattern.split(predicate) if not grams.lower() in sw]#multigram split based on comma
+    grams_tokenizer = [grams.lower() for grams in pattern.split(predicate) if grams.lower() not in sw]#multigram split based on comma
     for grams in grams_tokenizer:
         grams_counter[grams] += 1
             

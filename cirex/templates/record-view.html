@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>Upload View</title>
-<link rel="icon" href="data:;base64,=">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block app_content %}
+
 <h2>File contents</h2>
 <table>
     <tr>
@@ -32,8 +26,10 @@
 
  <div class="modal"> </div> 
 
-</body>
+{% endblock %}
 
+{% block scripts %}
+{{super()}}
 <script>
     $(document).ready(function (){
         $body = $('body');
@@ -54,6 +50,6 @@
       
 });
 </script>
-</html>
+{% endblock %}
 
 

@@ -16,7 +16,7 @@ class retrieval_form(FlaskForm):
     retrieve_button = SubmitField("Retrieve citation records")
     
 class exisitng_search_form(FlaskForm):
-    search_name = TextField("Search title: ", validators=[DataRequired()])
+    search_name = TextField("Input name of search to retrieve: ", validators=[DataRequired()])
     searchbtn = SubmitField("Load search record")
     
     def validate_search_name(self, search_name):
@@ -26,8 +26,9 @@ class exisitng_search_form(FlaskForm):
     
 class new_search_form(FlaskForm):
     search_name = TextField("Enter a name for this search: ", validators=[DataRequired()])
-    upload_button = SubmitField("Upload!")
     file = FileField(validators=[FileRequired(), FileAllowed(['txt', 'ris', 'csv'], "File type not allowed!")]) 
+    upload_button = SubmitField("Upload!")
+    
     
     def validate_search_name(self, search_name):
         search = Search.query.filter_by(name = search_name.data).first()

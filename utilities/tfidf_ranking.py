@@ -31,7 +31,7 @@ def tokenize(doc, input_type = None):
             yield token.lower()
     elif input_type == 'predicate':
         pattern = re.compile("^\s+|\s*,|;|\|\s*|\s+$")
-        grams_tokenizer = [grams.lower() for grams in pattern.split(doc) if not grams.lower() in stop_words]
+        grams_tokenizer = [grams.lower() for grams in pattern.split(doc) if grams.lower() not in stop_words]
         for predicate in grams_tokenizer:
             yield predicate
     else:

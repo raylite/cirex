@@ -1,0 +1,46 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+	{% if title %}{{ title }} - Cirex{% else %}Welcome to Cirex{% endif %}
+{% endblock %}
+
+{% block navbar %}
+	<nav class="navbar navbar-default">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" id = "banner" href="{{ url_for('main.index') }}"><strong>CiREx Demo</strong></a>
+			</div>
+			
+		</div>
+		
+	</nav>
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+			<div class="alert alert-info" role="alert">{{ message }}</div>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+
+		{% block app_content %}{% endblock %}
+	</div>
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style.css') }}">
+{% endblock %}

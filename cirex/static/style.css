@@ -61,7 +61,7 @@ tr:hover            { background-color: #ffff99;}
     height:     100%;
     width:      100%;
     background: rgba( 255, 255, 255, .8 ) 
-                url("spinner.gif")
+                url("/static/spinner.gif")
                 50% 50% 
                 no-repeat;
 }
@@ -103,3 +103,15 @@ body.loading .modal {
   align-content: center;
 }
 
+#banner { 
+  align-content: center;
+  text-align: center;
+  text-rendering: optimizeLegibility;
+  text-shadow: 2px 2px #ff0000;
+  background-color: #F0F8FF;
+
+}
+
+.row {
+  border-style: solid; 
+}
