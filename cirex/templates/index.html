@@ -12,7 +12,7 @@
         </label>
         <br>
         <div class="col-sm-10">
-            <fieldset class="form-group row load" id="newloadframe">
+            <fieldset class="form-group row frame" id="newloadframe">
             <legend>New search</legend>
                 <div class="col-sm-6">
                     <form id="upload-form" action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
@@ -20,6 +20,7 @@
                     {{ wtf.quick_form(form1)}}
                     <br>
                     {% endif %}
+                    <div id="msg"></div>
                 </form>
                 </div>
             </fieldset>
@@ -35,7 +36,7 @@
         </label>
         <br>
         <div class="col-sm-10">
-        <fieldset class="form-group row reload" id="reloadframe" disabled="true">
+        <fieldset class="form-group row frame" id="reloadframe" disabled="true">
             <legend>Retrieve existing result</legend>
             <div class="col-sm-6">
             <form action="{{ url_for('main.retrieve') }}" method="POST">

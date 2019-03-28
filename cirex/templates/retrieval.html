@@ -2,6 +2,8 @@
 
 {% block app_content %}
 
+<div class="form-group row">
+	<div class="col-sm-10">
 	<h2>Citation record preview</h2>
 	<table>
 		{{ data | safe }}
@@ -16,7 +18,7 @@
 	<div class="modal" id="modal">
 		<img src="{{ url_for('static', filename='spinner.gif') }}">
 	</div> 
-
+</div>
 {% endblock %}
 
 {% block scripts %}
