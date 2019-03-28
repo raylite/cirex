@@ -5,6 +5,7 @@ Created on Wed Oct 03 13:38:34 2018
 @author: raylite
 """
 import pandas as pd
+import numpy as np
 from collections import Counter
 import string
 from nltk.tokenize import word_tokenize
@@ -16,19 +17,19 @@ import SemMedDB.common_terms as ct
 
 
 
-def unigram(index_information, field):
+def unigram(data, field):
     terms = ct.commonTerminologies()
     common_terms = terms.common_terms    
     stoplist = set(stopwords.words('english') + common_terms + list(string.punctuation))
     
     if field == 'mesh':
         
-        tokens = index_information['MeSH'].str.split(',').tolist()
+        tokens = data['MeSH'].str.split(',').tolist()
         tokens = [mesh.lower() for toklist in tokens for mesh in toklist if mesh.lower() not in stoplist]
         
     elif field == 'tiabsmesh':
-        df = pd.concat([index_information['Title'], index_information['Abstract'],
-                        index_information['MeSH']])
+        df = pd.concat([data['Title'], data['Abstract'],
+                        data['MeSH']])
         tokens = word_tokenize(df.str.cat(sep = ' ').lower())
    
         translator = str.maketrans('', '', string.punctuation+string.digits)#python 3
@@ -38,8 +39,8 @@ def unigram(index_information, field):
     
     return tokens
 
-def bigrams(index_information, field, n=2):
-    bigrams = ngrams(unigram(index_information, field), n)
+def bigrams(data, field, n=2):
+    bigrams = ngrams(unigram(data, field), n)
     return [' '.join(grams) for grams in bigrams] 
 
 def create_freq_dict(tokens_list):
@@ -52,11 +53,22 @@ def sortKey(tokenslist):
 
 
 def sort_dict(tokens_dict):
-    sorted_tokens_list = [(key, value) for key, value in list(tokens_dict.items())]# if value > 2]
+    mean = np.mean(list(tokens_dict.values()))
+    print (mean)
+    sorted_tokens_list = [(key, value) for key, value in list(tokens_dict.items()) if value >= round(mean)]
     sorted_tokens_list.sort(reverse = True, key = sortKey)
     return sorted_tokens_list
 
-
+def frequency_rank(data, input_type, condition=None):
+    if condition== 'bigram':
+        return pd.DataFrame(list(sort_dict(create_freq_dict(bigrams(data, input_type)))), columns = ['TAM_Bigrams', 'Frequency'])
+    elif not condition and input_type == 'tiabsmesh': 
+        return pd.DataFrame(list(sort_dict(create_freq_dict(unigram(data, input_type)))), columns = ['TAM_Unigrams', 'Frequency'])
+    else:
+        return pd.DataFrame(list(sort_dict(create_freq_dict(unigram(data, input_type)))), columns = ['MeSH', 'Frequency'])
+        
+    
+    
 
 # =============================================================================
 # def save_result(sorted_tokens):

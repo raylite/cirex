@@ -129,12 +129,9 @@ def retrieved_citations(search_name):
         
     process_form = processing_form()
     if process_form.validate_on_submit():
-        mesh_terms = pd.DataFrame(list(rank_freq.sort_dict(rank_freq.create_freq_dict(rank_freq.unigram(pd.DataFrame(articles), 'mesh')))), 
-                             columns = ['MeSH', 'Frequency'])##mesh frequency
-        tiabs_terms = pd.DataFrame(list(rank_freq.sort_dict(rank_freq.create_freq_dict(rank_freq.unigram(pd.DataFrame(articles), 'tiabsmesh')))), 
-                             columns = ['TAM_Unigrams', 'Frequency'])#tiabs unigram frequency
-        tiabs_bigrams = pd.DataFrame(list(rank_freq.sort_dict(rank_freq.create_freq_dict(rank_freq.bigrams(pd.DataFrame(articles), 'tiabsmesh')))), 
-                             columns = ['TAM_Bigrams', 'Frequency'])#tiabs bigram frequency
+        mesh_terms = rank_freq.frequency_rank(pd.DataFrame(articles), 'mesh')##mesh frequency
+        tiabs_terms = rank_freq.frequency_rank(pd.DataFrame(articles), 'tiabsmesh')#tiabs unigram frequency
+        tiabs_bigrams = rank_freq.frequency_rank(pd.DataFrame(articles), 'tiabsmesh', 'bigram')#tiabs bigram frequency
         tfidf_bigram_mesh = tfidf_ranking.compute_tfidf(pd.DataFrame(articles), input_type = 'mesh')#mesh tfidf
         tfidf_uni_tiabs = tfidf_ranking.compute_tfidf(pd.DataFrame(articles), input_type = 'tiabsmesh', condition = 'unigram')
         tfidf_bigram_tiabs = tfidf_ranking.compute_tfidf(pd.DataFrame(articles), input_type = 'tiabsmesh', condition = 'bigram')
@@ -181,14 +178,14 @@ def display_results(results):
     chi_bi_preds = pd.read_json(result.chi_multicount_preds, orient = 'records')
     
     return render_template('result.html', 
-                           unigrams = pd.DataFrame(freq_terms[['MeSH']]).to_html(), 
+                           unigrams = pd.DataFrame(freq_terms[['MeSH']]).to_html(), #reduction handled in the code
                            tiabs_uni = pd.DataFrame(tiabs_terms[['TAM_Unigrams']]).to_html(),
                            tiabs_bi = pd.DataFrame(tiabs_bi[['TAM_Bigrams']]).to_html(),
-                           tf_mesh = pd.DataFrame(tf_bi_mesh[['MeSH_tf']]).to_html(),
-                           tf_uni_tiabs = pd.DataFrame(tf_uni_tiabs[['TAM_tf']]).to_html(),
-                           tf_bi_tiabs = pd.DataFrame(tf_bi_tiabs[['Bi_TAM_tf']]).to_html(),
-                           tf_bi_preds = pd.DataFrame(tf_bi_preds['Nu_Pred_tf']).to_html(),
-                           tf_unique_preds = pd.DataFrame(tf_unique_preds['U_Pred_tf']).to_html(),
+                           tf_mesh = pd.DataFrame(tf_bi_mesh[['MeSH_tf']][tf_bi_mesh['Tf-idf score'].gt(0.05)]).to_html(),
+                           tf_uni_tiabs = pd.DataFrame(tf_uni_tiabs[['TAM_tf']][tf_uni_tiabs['Tf-idf score'].gt(0.05)]).to_html(),
+                           tf_bi_tiabs = pd.DataFrame(tf_bi_tiabs[['Bi_TAM_tf']][tf_bi_tiabs['Tf-idf score'].gt(0.05)]).to_html(),
+                           tf_bi_preds = pd.DataFrame(tf_bi_preds['Nu_Pred_tf'][tf_bi_preds['Tf-idf score'].gt(0.02)]).to_html(),
+                           tf_unique_preds = pd.DataFrame(tf_unique_preds[['U_Pred_tf']][tf_unique_preds['Tf-idf score'].gt(0.02)]).to_html(),
                            f_unique_preds = pd.DataFrame(f_unique_preds[['Un_F_Predicates', 'Docs_Count']]).to_html(),
                            f_bi_preds = pd.DataFrame(f_bi_preds[['Nu_F_Predicates']]).to_html(),
                            chi_unique_preds = pd.DataFrame(chi_unique_preds[['Un_Chi2_Predicates']]).to_html(),
