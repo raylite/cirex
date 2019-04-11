@@ -69,7 +69,8 @@ def compute_tfidf(corpus, input_type = None, condition = None):
         corpus = corpus['MeSH'] + corpus['Title'] + corpus['Abstract']
     else:
         corpus = corpus
-        
+    
+    corpus = corpus.dropna()   
     for item in vectorize(corpus, condition, input_type):
         temp_list.append(item)
     #temp_list = vectorize(corpus)

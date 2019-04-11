@@ -39,6 +39,7 @@ def upload():
 
         if file and allowed_file(file.filename):
             searchinfo = Search(name= upload_form.search_name.data, citation_list = file.read())
+            
             db.session.add(searchinfo)
             db.session.commit()
             return redirect(url_for('main.file_view', search_name = searchinfo.name, _external=True))
@@ -59,14 +60,14 @@ def retrieve():
 @bp.route('/upload_view/<search_name>', methods=['GET', 'POST'])
 def file_view(search_name):
         search = Search.query.filter_by(name = search_name).first_or_404()
-        citations = search.citation_list.split("\r\n")
-        
+        citation = search.citation_list.split("\r\n")
+        citations = [n for n in citation if n.isdigit()]     
         citations_list = []
-         
+        
         
         for record in range(len(citations)):
             citations_list.append(citations[record].split(" "))
-            
+                    
         articles_list = []
         
         form = retrieval_form()
@@ -95,10 +96,9 @@ def file_view(search_name):
                                   )
                 
                 article.databases.append(database)
-                
-            articles_list.append(article)
-            db.session.add_all(articles_list)
+                articles_list.append(article)
             try:
+                db.session.bulk_save_objects(articles_list)
                 db.session.commit()
             except:
                 db.session.rollback()

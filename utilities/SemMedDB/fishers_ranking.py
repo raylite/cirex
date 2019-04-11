@@ -5,7 +5,6 @@ Created on Thu Nov 29 13:09:55 2018
 
 @author: kazeem
 """
-
 import pandas as pd
 import scipy.stats as stats
 from . import semmeddb_accessor as sdb
@@ -20,24 +19,7 @@ root = os.path.abspath(os.path.dirname(__file__))
 _UNIQUE_COUNTL_SUM = 115646090
 _NON_UNIQUE_COUNT_SUM = 185505672
 
-def analyse_semmed_predicates(pmids):
-    unique_fishers = 0
-    unique_chi2 = 0
-    nonunique_fishers = 0
-    nonunique_chi2 = 0
-    unique_tfidf = 0
-    nonunique_tfidf = 0
-       
-    unique_pred_details, nonunique_pred_details, tfidf_predicates = sdb.load_sub_preds(pmids)
-    
-    unique_fishers, unique_chi2 = chi_fishers_ranking(unique_pred_details)
-    nonunique_fishers, nonunique_chi2 = chi_fishers_ranking(nonunique_pred_details, unique = False)
-    nonunique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['UP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'multicount')#predicates tfidf fix by making non unique multigrams
-    unique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['NUP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'uniquecount')
    
-    return unique_fishers, unique_chi2, nonunique_fishers, nonunique_chi2, nonunique_tfidf, unique_tfidf
-    
-    
 def chi_fishers_ranking(preds_details, unique = True):  
     if unique:
         db_record = pd.read_csv(os.path.join(root, 'uniquecount_predicates.csv'))
@@ -100,6 +82,22 @@ def chi_fishers_ranking(preds_details, unique = True):
     
     return fisher_values_df, chi_values_df
 
+def analyse_semmed_predicates(pmids):
+    unique_fishers = 0
+    unique_chi2 = 0
+    nonunique_fishers = 0
+    nonunique_chi2 = 0
+    unique_tfidf = 0
+    nonunique_tfidf = 0
+       
+    unique_pred_details, nonunique_pred_details, tfidf_predicates = sdb.load_sub_preds(pmids)
+    
+    unique_fishers, unique_chi2 = chi_fishers_ranking(unique_pred_details)
+    nonunique_fishers, nonunique_chi2 = chi_fishers_ranking(nonunique_pred_details, unique = False)
+    nonunique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['UP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'multicount')#predicates tfidf fix by making non unique multigrams
+    unique_tfidf = tfidf_ranking.compute_tfidf(tfidf_predicates['NUP_SUBJ_OBJ_COMBINED'], input_type = 'predicate', condition = 'uniquecount')
+   
+    return unique_fishers, unique_chi2, nonunique_fishers, nonunique_chi2, nonunique_tfidf, unique_tfidf
 
     
     

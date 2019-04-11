@@ -25,7 +25,7 @@ def PMID_Search(id_list):
     webenv = search_results["WebEnv"]
     query_key = search_results["QueryKey"]
     count = len(id_list)
-    batch_size = 10
+    batch_size = 100
     PMID_Search
     abstract = None
     all_docs = []

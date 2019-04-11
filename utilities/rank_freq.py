@@ -54,7 +54,6 @@ def sortKey(tokenslist):
 
 def sort_dict(tokens_dict):
     mean = np.mean(list(tokens_dict.values()))
-    print (mean)
     sorted_tokens_list = [(key, value) for key, value in list(tokens_dict.items()) if value >= round(mean)]
     sorted_tokens_list.sort(reverse = True, key = sortKey)
     return sorted_tokens_list
