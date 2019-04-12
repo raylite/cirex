@@ -23,14 +23,15 @@ def tokenize(doc, input_type = None):
     stop_words = set(stopwords.words('english') + common_terms + list(string.punctuation))
     #replace special characters with space
     #doc = doc.lower()
+    pattern = re.compile("^\s+|\s*,|;|\|\s*|\s+$")
     if input_type == 'mesh':
-        tokens = doc.split(',')
+        tokens = [grams.lower() for grams in pattern.split(doc) if grams.lower() not in stop_words]
         for token in tokens:
-            if token in string.punctuation or token.isdigit() or token.lower() in stop_words or len(token) <= 3:
+            if token in string.punctuation or token.isdigit() or len(token) <= 3:
                 continue
-            yield token.lower()
+            yield token
     elif input_type == 'predicate':
-        pattern = re.compile("^\s+|\s*,|;|\|\s*|\s+$")
+        
         grams_tokenizer = [grams.lower() for grams in pattern.split(doc) if grams.lower() not in stop_words]
         for predicate in grams_tokenizer:
             yield predicate
@@ -46,7 +47,7 @@ def bigrams(doc_tokens, n=2):
         yield ' '.join(grams)
 
 def vectorize(corpus, condition, input_type = None):
-    if condition == 'bigram' and input_type == 'tiabsmesh':
+    if condition == 'bigram' and input_type == 'tiabs':
         corpus = [list(bigrams(tokenize(doc))) for doc in corpus]
         #tfidf = TfidfVectorizer(ngram_range=(2,2), tokenizer=tokenize,max_df=0.9, 
                            #min_df=2)
@@ -65,8 +66,8 @@ def compute_tfidf(corpus, input_type = None, condition = None):
     temp_list = []
     if input_type == 'mesh':
         corpus = corpus['MeSH']
-    elif input_type == 'tiabsmesh':
-        corpus = corpus['MeSH'] + corpus['Title'] + corpus['Abstract']
+    elif input_type == 'tiabs':
+        corpus = corpus['Title'] + corpus['Abstract']
     else:
         corpus = corpus
     
@@ -79,12 +80,12 @@ def compute_tfidf(corpus, input_type = None, condition = None):
     if input_type == 'mesh':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['MeSH_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-    elif input_type == 'tiabsmesh' and condition == 'unigram':
+    elif input_type == 'tiabs' and condition == 'unigram':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
-                             columns = ['TAM_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
-    elif input_type == 'tiabsmesh' and condition == 'bigram':
+                             columns = ['TA_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
+    elif input_type == 'tiabs' and condition == 'bigram':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
-                             columns = ['Bi_TAM_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
+                             columns = ['Bi_TA_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)
     elif input_type == 'predicate' and condition == 'uniquecount':
         corpus_df = pd.DataFrame(list(corpus_df.sum(axis=0).items()), 
                              columns = ['U_Pred_tf', 'Tf-idf score']).sort_values(by=['Tf-idf score'], ascending=False).reset_index(drop=True)

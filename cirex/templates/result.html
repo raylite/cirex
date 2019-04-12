@@ -3,15 +3,8 @@
 {% block app_content %}
 <div class="d-f;ex justify-content-center">
 	<div class="center-block col-sm-12">
-		<h2 id="pagehead">This page displays result of the search. Click <a href = "{{ url_for('main.download', results=result.name) }}">here</a> to download an offline copy</h2>
-	<!--<div id="headings-div">
-		<h4 id="freq_mesh">Frequency count: MeSH</h4>
-		<h4 id="freq_tiabs">Frequency count: TiAbs</h4>
-		<h4 id="tfidf-mesh"> tf-idf scores: MeSH</h4>
-		<h4 id="tfidf-tiabs">tf-idf scores: TiAbs</h4>
-		<h4 id="fishers"> Fishers score </h4>
-		<h4 id="chisq"> Chi square </h4>
-  	</div>-->
+		<h2 id="pagehead">This page displays result of the search. Click <a href = "{{ url_for('main.download', results=result.name) }}">here</a> to download an offline copy or <a href="{{ url_for('main.download_records', results=result.name) }}">here</a> to download overview of articles</h2>
+	
 	<div id="top-div">
 		<p id="freq_unigram">{{ unigrams | safe }}</p>
 		<p id="tiabs_freq_uni">{{ tiabs_uni | safe }}</p>
