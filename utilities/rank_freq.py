@@ -76,7 +76,7 @@ def frequency_rank(data, input_type, condition=None):
         
         doc_df = pd.DataFrame([(key, set(value)) for key, value in list(doc_dict.items())], columns = ['MeSH', 'Articles'])
         frq_df = frq_dict.merge(doc_df)
-        print(frq_df.head(3))
+        
         return frq_df
           
     

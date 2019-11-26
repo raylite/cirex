@@ -40,8 +40,8 @@
             <legend>Retrieve existing result</legend>
             <div class="col-sm-6">
             <form action="{{ url_for('main.retrieve') }}" method="POST">
-               {% if form2 %}
-                {{ wtf.quick_form(form2) }}<br>
+                {% if form2 %}
+                    {{ wtf.quick_form(form2) }}<br>
                 {% endif %}
             </form>
         </div>

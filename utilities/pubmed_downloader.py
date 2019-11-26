@@ -26,7 +26,6 @@ def PMID_Search(id_list):
     query_key = search_results["QueryKey"]
     count = len(id_list)
     batch_size = 100
-    PMID_Search
     abstract = None
     all_docs = []
     mesh_head = None
@@ -38,24 +37,27 @@ def PMID_Search(id_list):
         end = min(count, start+batch_size)
         print("Going to download record {} to {}".format(start+1, end))
         attempt = 0
-        while attempt < 3:
-            attempt += 1
+        success = False
+        while not success and attempt < 3:
             try:
                 fetch_handle = Entrez.efetch(db="pubmed",
                                              rettype="abstract", retmode="xml",
                                              retstart=start, retmax=batch_size,
                                              webenv=webenv, query_key=query_key)
                 #try rettype=abstract, retmode = text
+                success = True
             except HTTPError as err:
                 if 500 <= err.code <= 599:
                     print("Received error from server %s" % err)
                     print("Attempt %i of 3" % attempt)
                     time.sleep(15)
+                    attempt += 1
                 else:
                     raise
-        data = fetch_handle.read()
-        fetch_handle.close()
-        tree = ET.XML(data)
+            else:
+                data = fetch_handle.read()
+                fetch_handle.close()
+                tree = ET.XML(data)
         
         for doc in tree:
             authors = []

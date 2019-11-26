@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block app_content %}
-<div class="d-f;ex justify-content-center">
+<div class="d-flex justify-content-center">
 	<div class="center-block col-sm-12">
 		<h2 id="pagehead">This page displays result of the search. Click <a href = "{{ url_for('main.download', results=result.name) }}">here</a> to download an offline copy or <a href="{{ url_for('main.download_records', results=result.name) }}">here</a> to download overview of articles</h2>
 	

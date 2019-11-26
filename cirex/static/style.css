@@ -1,8 +1,8 @@
 body            { 
 	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	max-width: 95%;
-	margin-left: auto;
-  margin-right: auto;
+	max-width: 99%;
+	margin-left: 1%;
+  margin-right: 1%;
 }
 h1, h2       { color: #377ba8; }
 h1, h2          { margin: 0; }
@@ -78,6 +78,11 @@ body.loading .modal {
   display: table;
 }
 
+.d-flex, #pagehead {
+  margin: 1%;
+}
+
+
 #freq_unigram, #tiabs_freq_uni,#tiabs_freq_bi,#f_preds_bi,#chi_preds_uni,
 #tf_mesh_bi,#tf_tiabs_uni, #tf_tiabs_bi,#tf_pred, #tf_pred_multi, #f_preds_uni,#chi_preds_bi{
   display: table-cell;
@@ -111,7 +116,8 @@ body.loading .modal {
 
 .row {
   border: 1px solid lightblue; 
-  padding: 10px;
+  padding: 1%;
+  margin: 1%;
 }
 
 .row .frame{
@@ -122,4 +128,9 @@ body.loading .modal {
 .center-block{
   border: none; 
   margin-left: 0 auto;
+}
+
+.container {
+  margin-left: 5%;
+  margin-right: 5%;
 }
